@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+
+    <h:outputStylesheet library="css" name="style.css"/>
+<!--    <h:outputScript library="js" name="test.js"/>-->
+
+</h:head>
+<h:body>
+
+    <!--    <p:messages closable="true"/>-->
+    <p:graphicImage width="100px" library="img" name="img.png"/>
+    <p:growl id="msg" showDetail="true"/>
+    <p:panel header="Todo Liste">
+        <!-- Toolbar und DataTable über Primefaces -->
+        <!-- findAll, save, delete-->
+
+        <h:form id="form1">
+            <p:toolbar>
+                <p:toolbarGroup>
+                    <p:inputText id="task" value="#{todoBean.saveTodo.task}" placeholder="Task" required="true"
+                                 validatorMessage="mindestens 3 Zeichen">
+                        <f:validateLength minimum="3" maximum="10"/>
+                    </p:inputText>
+                    <!--                <p:message for="task" />-->
+
+                    <!-- todoBean.getSaveTodo().setTask(xyz)-->
+                    <p:inputText value="#{todoBean.saveTodo.description}" placeholder="Description"/>
+                    <p:datePicker value="#{todoBean.saveTodo.deadline}"
+                                  locale="de" monthNavigator="true" pattern="dd.MM.yyyy" placeholder="Deadline"/>
+
+
+                </p:toolbarGroup>
+
+                <p:toolbarGroup align="right">
+                    <!-- actionListener void-Methode -->
+                    <p:commandButton value="Save" actionListener="#{todoBean.save()}" update="todotable :msg"/>
+                </p:toolbarGroup>
+
+
+            </p:toolbar>
+
+
+            <div class="card">
+                <p:dataTable  editable="true" id="todotable" var="todo" value="#{todoBean.todoList}"
+                             selection="#{todoBean.selectTodo}"
+                             selectionMode="single" rowKey="#{todo.id}"
+                             rowStyleClass="#{todo.state=='DONE'?'entrydone':null}
+                                        #{todo.state=='NEW'?'entrynew':null}
+                                        #{todo.state=='IN_PROGRESS'?'entryprogress':null}"
+
+                >
+                    <p:ajax event="rowSelect" listener="#{todoBean.select}"/>
+                    <p:ajax event="rowEdit" listener="#{todoBean.onRowEdit}" update="todotable"/>
+                    <!--                <p:column headerText="Id">-->
+                    <!--                    <h:outputText value="#{todo.id}"/>-->
+                    <!--                </p:column>-->
+                    <p:column headerText="Title">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <h:outputText value="#{todo.task}"/>
+                            </f:facet>
+                            <f:facet name="input">
+                                <p:inputText value="#{todo.task}" style="width:100%"/>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>
+
+                    <p:column headerText="Description">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <h:outputText value="#{todo.description}"/>
+                            </f:facet>
+                            <f:facet name="input">
+                                <p:inputText value="#{todo.description}" style="width:100%"/>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>
+
+                    <p:column headerText="Deadline">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <h:outputText value="#{todo.deadline}"/>
+                            </f:facet>
+                            <f:facet name="input">
+                                <p:datePicker value="#{todo.deadline}"/>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>
+
+                    <p:column headerText="State">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <h:outputText value="#{todo.state}"/>
+                            </f:facet>
+                            <f:facet name="input">
+                                <h:selectOneMenu value="#{todo.state}" style="width:100%">
+                                    <f:selectItems value="#{todoBean.states}"/>
+                                </h:selectOneMenu>
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>
+                    <p:column style="width:6rem" >
+
+                        <p:rowEditor editTitle="Edit Row" cancelTitle="Cancel Edit" saveTitle="Save Row"/>
+                    </p:column>
+                </p:dataTable>
+
+
+                <p:contextMenu for="todotable">
+
+                    <p:menuitem process="@this, todotable" value="Delete" update="todotable" icon="pi pi-times"
+                                action="#{todoBean.delete}"/>
+                </p:contextMenu>
+            </div>
+        </h:form>
+    </p:panel>
+
+
+<!--    <h:outputScript library="js" name="test.js" target="head"/>-->
+</h:body>
+</html>
